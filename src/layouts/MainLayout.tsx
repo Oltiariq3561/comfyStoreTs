@@ -1,9 +1,9 @@
-import React, { ReactNode } from 'react';
+import { FC, ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 type MainLayoutProps = {
   children: ReactNode;
 };
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: FC<MainLayoutProps> = ({ children }) => {
   return (
     <div className="container w-[1200px] mx-auto p-4 text-white">
       <header className="flex justify-between items-center mb-10">
