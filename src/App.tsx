@@ -30,6 +30,8 @@ const App: FC = () => {
       <Route path="*" element={<ErrorPage />} />
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
+
+
     </Routes>
   );
 }

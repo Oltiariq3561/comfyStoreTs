@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Pagination, Stack } from '@mui/material';
 
 type Product = {
   id: number;
@@ -8,11 +9,19 @@ type Product = {
     image: string;
     title: string;
     price: number;
+    category: string;
+    company: string;
   };
 };
 
 const Products: FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCompany, setSelectedCompany] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     axios
@@ -20,6 +29,7 @@ const Products: FC = () => {
       .then((response) => {
         if (response.status === 200) {
           setProducts(response.data.data);
+          setFilteredProducts(response.data.data);
         }
       })
       .catch((error) => {
@@ -27,45 +37,97 @@ const Products: FC = () => {
       });
   }, []);
 
+  const handleFilter = () => {
+    let filtered = products;
+
+    if (searchTerm) {
+      filtered = filtered.filter((product) =>
+        product.attributes.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(
+        (product) => product.attributes.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    if (selectedCompany !== 'all') {
+      filtered = filtered.filter(
+        (product) => product.attributes.company.toLowerCase() === selectedCompany.toLowerCase()
+      );
+    }
+
+    setFilteredProducts(filtered);
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setSelectedCompany('all');
+    setFilteredProducts(products);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    handleFilter();
+  }, [searchTerm, selectedCategory, selectedCompany]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
-    <div>
-      <form
-        method="get"
-        action="/products"
-        className="bg-base-200 rounded-md px-8 py-4 grid gap-x-4 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-center"
-      >
-        <div className="form-control">
-          <label htmlFor="search" className="label">
-            <span className="label-text capitalize">Search Product</span>
-          </label>
-          <input type="search" name="search" className="input input-bordered input-sm" defaultValue="" />
-        </div>
+    <div className="bg-white text-black min-h-screen">
+      <div className="flex gap-6 justify-center py-5 bg-gray-100 shadow-md">
+        <label className="input input-bordered flex items-center gap-2 text-black">
+          <input
+            type="text"
+            className="grow placeholder-gray-600 text-black"
+            placeholder="Search product"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </label>
 
-        <div className="form-control">
-          <label htmlFor="category" className="label">
-            <span className="label-text capitalize">Select Category</span>
-          </label>
-          <select name="category" id="category" className="select select-bordered select-sm">
-            <option value="all">All</option>
-            <option value="Tables">Tables</option>
-            <option value="Chairs">Chairs</option>
-            <option value="Kids">Kids</option>
-            <option value="Sofas">Sofas</option>
-            <option value="Beds">Beds</option>
-          </select>
-        </div>
+        <select
+          className="select select-bordered w-full max-w-xs text-black border-gray-400"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="all">All Categories</option>
+          <option value="Kids">Kids</option>
+          <option value="Tables">Tables</option>
+          <option value="Chairs">Chairs</option>
+          <option value="Sofas">Sofas</option>
+          <option value="Beds">Beds</option>
+        </select>
 
-        <button type="submit" className="btn btn-primary btn-sm">
-          Search
+        <select
+          className="select select-bordered w-full max-w-xs text-black border-gray-400"
+          value={selectedCompany}
+          onChange={(e) => setSelectedCompany(e.target.value)}
+        >
+          <option value="all">All Companies</option>
+          <option value="Modenza">Modenza</option>
+          <option value="Luxora">Luxora</option>
+          <option value="Artifex">Artifex</option>
+          <option value="Comfora">Comfora</option>
+          <option value="Homestead">Homestead</option>
+        </select>
+
+        <button
+          className="btn bg-blue-500 text-white px-4 py-2 rounded-lg"
+          onClick={resetFilters}
+        >
+          Reset Filters
         </button>
-        <a className="btn btn-accent btn-sm" href="/products">
-          Reset
-        </a>
-      </form>
+      </div>
 
       <div className="grid grid-cols-3 gap-8 p-8">
-        {products.map((product) => (
-          <div key={product.id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+        {currentItems.map((product) => (
+          <div key={product.id} className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-300">
             <Link to={`/products/${product.id}`}>
               <img
                 src={product.attributes.image}
@@ -73,13 +135,24 @@ const Products: FC = () => {
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-700">{product.attributes.title}</h2>
-                <p className="text-gray-500">${product.attributes.price}</p>
+                <h2 className="text-lg font-semibold text-black">{product.attributes.title}</h2>
+                <p className="text-gray-700">${product.attributes.price}</p>
               </div>
             </Link>
           </div>
         ))}
       </div>
+
+      <Stack spacing={2} alignItems="center" className="mt-4">
+        <Pagination
+          count={Math.ceil(filteredProducts.length / itemsPerPage)}
+          page={currentPage}
+          onChange={(_, value) => setCurrentPage(value)}
+          color="primary"
+          variant="outlined"
+          shape="rounded"
+        />
+      </Stack>
     </div>
   );
 };
