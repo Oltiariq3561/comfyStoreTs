@@ -80,11 +80,11 @@ const Products: FC = () => {
 
   return (
     <div className="bg-white text-black min-h-screen">
-      <div className="flex gap-6 justify-center py-5 bg-gray-100 shadow-md">
-        <label className="input input-bordered flex items-center gap-2 text-black">
+      <div className="flex gap-6 justify-center py-5 bg-blue-100 shadow-md rounded-lg px-8">
+        <label className="input input-bordered flex items-center gap-2 text-black bg-white shadow-md border border-blue-400 rounded-lg">
           <input
             type="text"
-            className="grow placeholder-gray-600 text-black"
+            className="grow h-10 rounded-md placeholder-gray-600 text-black"
             placeholder="Search product"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -92,7 +92,7 @@ const Products: FC = () => {
         </label>
 
         <select
-          className="select select-bordered w-full max-w-xs text-black border-gray-400"
+          className="select select-bordered w-full max-w-xs text-black border-blue-400 bg-white shadow-md rounded-lg"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
@@ -105,7 +105,7 @@ const Products: FC = () => {
         </select>
 
         <select
-          className="select select-bordered w-full max-w-xs text-black border-gray-400"
+          className="select select-bordered w-full max-w-xs text-black border-blue-400 bg-white shadow-md rounded-lg"
           value={selectedCompany}
           onChange={(e) => setSelectedCompany(e.target.value)}
         >
@@ -118,7 +118,7 @@ const Products: FC = () => {
         </select>
 
         <button
-          className="btn bg-blue-500 text-white px-4 py-2 rounded-lg"
+          className="btn bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600"
           onClick={resetFilters}
         >
           Reset Filters
